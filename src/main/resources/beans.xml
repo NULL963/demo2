@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/context
+         http://www.springframework.org/schema/context/spring-context.xsd
+         http://www.springframework.org/schema/tx
+     	 http://www.springframework.org/schema/tx/spring-tx.xsd
+         http://www.springframework.org/schema/aop
+         http://www.springframework.org/schema/aop/spring-aop.xsd">
+    <aop:aspectj-autoproxy/>
+    <!--自动扫描装配bean-->
+    <context:component-scan base-package="cn.learn"/>
+    <context:annotation-config />
+    <!-- 配置数据库连接池c3p0 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+    <property name="driverClass" value="org.gjt.mm.mysql.Driver"/>
+        <property name="jdbcUrl" value="jdbc:mysql:///test?characterEncoding=utf-8"/>
+        <property name="user" value="root"/>
+        <property name="password" value="63396931"/>
+        <property name="initialPoolSize" value="3"/>
+        <property name="minPoolSize" value="3"/>
+        <property name="maxPoolSize" value="5"/>
+        <property name="acquireIncrement" value="2"/>
+        <property name="maxIdleTime" value="1800"/>
+    </bean>
+    <!--配置hibernate的相关信息-->
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <!--引用数据源-->
+        <property name="dataSource" ref="dataSource" />
+        <!--配置hibernate中的配置-->
+        <property name="hibernateProperties">
+            <props>
+                <!--设置方言-->
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+                <!--设置显示sql语句-->
+                <prop key="show_sql">true</prop>
+                <!--打开自动建表-->
+                <prop key="hbm2ddl.auto">update</prop>
+            </props>
+        </property>
+        <!--配置hibernate的映射文件-->
+        <property name="mappingResources">
+            <list>
+                <value>Department.hbm.xml</value>
+                <value>Employee.hbm.xml</value>
+            </list>
+        </property>
+    </bean>
+    <!--开启事务 配置事务管理器-->
+    <bean id="txManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+    <!--开启注解 使用到的事务管理器既是上文所配置的事务管理器-->
+    <tx:annotation-driven transaction-manager="txManager"/>
+</beans>
+
+
+        <!-- <bean id="testDao" class="cn.learn.dao.impl.tsetDaoImpl"></bean> <bean
+            id="personService" class="cn.learn.service.impl.PersonServierBean"> name
+            类中对应的属性名 ref 已经定义的bean <property name="dao"> <bean class="cn.learn.dao.impl.tsetDaoImpl"></bean>
+            </property> </bean> -->
